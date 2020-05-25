@@ -5,10 +5,11 @@ module LorentzVectors
 import LinearAlgebra: dot, ⋅, cross, ×, norm, normalize
 import Random: rand, MersenneTwister
 
-import Base: +, -, *, /, ==, isapprox, ≈, zero
+import Base: +, -, *, /, ==, isapprox, ≈, zero, adjoint
 
-export LorentzVector, SpatialVector, Vec4, Vec3
-export +, -, *, /, ==, isapprox, ≈, dot, ⋅, cross, ×, norm, normalize, rand, zero
+export LorentzVector, SpatialVector, Vec4, Vec3, CVec4, CVec3
+export +, -, *, /, ==, isapprox, ≈, dot, ⋅, cross, ×, norm, normalize, rand, zero,
+    adjoint
 export boost, rotate
 
 """
@@ -94,6 +95,14 @@ const Vec4 = LorentzVector
 "Alias of SpatialVector"
 const Vec3 = SpatialVector
 
+"Alias of LorentzVector{Complex}"
+const CVec4{T} = LorentzVector{Complex{T}}
+CVec4(args...) = Vec4(complex.(args)...)
+
+"Alias of SpatialVector{Complex}"
+const CVec3{T} = SpatialVector{Complex{T}}
+CVec3(args...) = Vec3(complex.(args)...)
+
 function +(u::LorentzVector)
     u
 end
@@ -171,6 +180,12 @@ function isapprox(u::SpatialVector, v::SpatialVector;
     err = norm(u-v)
     err <= max(atol, rtol*max(norm(u), norm(v)))
 end
+
+adjoint(u::LorentzVector{T}) where {T <: Real} = u
+adjoint(u::SpatialVector{T}) where {T <: Real} = u
+
+adjoint(u::CVec4{T}) where {T <: Real} = CVec4{T}(u.t', u.x', u.y', u.z')
+adjoint(u::CVec3{T}) where {T <: Real} = CVec3{T}(u.x', u.y', u.z')
 
 """
     dot(u, v)
